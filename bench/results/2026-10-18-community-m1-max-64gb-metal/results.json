@@ -1,0 +1,78 @@
+{
+  "report": "M1 Max 64 GB Metal streaming - settings/tuning matrix",
+  "measured_on": "2026-10-18",
+  "by": "DarkJoll",
+  "engine": "0.1.45-metal (commit 477ac13c + ad92d055 + eddd769b, source build, Metal backend)",
+  "hardware": {
+    "gpu": "Apple M1 Max integrated GPU (unified memory, no discrete VRAM)",
+    "cpu": "Apple M1 Max, 10 cores",
+    "ram": "64 GiB unified (= 68.7 GB decimal, the figure the engine prints)",
+    "storage": "APPLE SSD AP1024R, 1 TB (experts streamed from SSD)",
+    "os": "macOS 27.0 (build 26A428)"
+  },
+  "model": "Qwen3.8-Flash-Next IQ3_S, 24576 experts (512/layer x 48 layers), top-10 active per token",
+  "base_args": "--spec 2 --mtp --mmap-experts --vram-reserve-mib 1728 --max-context 262144 --vision; env STRATA_METAL_STREAM=1, STRATA_METAL_PROMPT_CHUNK=2048",
+  "method": "temperature 0 (deterministic; drafts accepted identical 190/322 across configs on the bigctx workload). Decode tok/s and prompt tok/s are the engine's own request-line figures. bigctx run 1 after each restart is cold (empty KV, experts re-read); runs 2-3 reuse the 35773-token prefix. One storia request logs two lines (160-token window + 690-token continuation); the decode figure is the warm continuation line.",
+  "fields": "prompt_tokens, reused_tokens, fresh_tokens, prompt_tok_s (fresh read), generated_tokens, decode_tok_s, drafts_accepted/of, cold (true=fresh prompt after restart)",
+  "runs": {
+    "base_chunk2048_default7_kvdefault": {
+      "bigctx_35778": [
+        {"prompt_tokens": 35778, "reused_tokens": 0, "fresh_tokens": 35778, "prompt_tok_s": 274.3, "generated_tokens": 512, "decode_tok_s": 19.2, "drafts_accepted": "190/322", "cold": true},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "prompt_tok_s": 16.8, "generated_tokens": 512, "decode_tok_s": 21.4, "drafts_accepted": "190/322", "cold": false},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "prompt_tok_s": 19.7, "generated_tokens": 512, "decode_tok_s": 21.4, "drafts_accepted": "190/322", "cold": false}
+      ],
+      "storia_short": [
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.0, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.2, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.2, "cold": false}
+      ]
+    },
+    "kv_k8v4": {
+      "bigctx_35778": [
+        {"prompt_tokens": 35778, "reused_tokens": 0, "fresh_tokens": 35778, "prompt_tok_s": 273.8, "generated_tokens": 512, "decode_tok_s": 19.3, "drafts_accepted": "190/322", "cold": true},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.4, "drafts_accepted": "190/322", "cold": false},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.5, "drafts_accepted": "190/322", "cold": false}
+      ],
+      "storia_short": [
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.2, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.3, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.5, "cold": false}
+      ]
+    },
+    "route_tail_skip_0": {
+      "bigctx_35778": [
+        {"prompt_tokens": 35778, "reused_tokens": 0, "fresh_tokens": 35778, "prompt_tok_s": 244.8, "generated_tokens": 512, "decode_tok_s": 19.4, "drafts_accepted": "190/322", "cold": true},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.4, "drafts_accepted": "190/322", "cold": false},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.5, "drafts_accepted": "190/322", "cold": false},
+        {"prompt_tokens": 35778, "reused_tokens": 0, "fresh_tokens": 35778, "prompt_tok_s": 276.4, "generated_tokens": 512, "decode_tok_s": 19.6, "drafts_accepted": "190/322", "cold": true},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.3, "drafts_accepted": "190/322", "cold": false},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.3, "drafts_accepted": "190/322", "cold": false}
+      ],
+      "storia_short": [
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.4, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.1, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 20.1, "cold": false}
+      ]
+    },
+    "route_tail_skip_10": {
+      "bigctx_35778": [
+        {"prompt_tokens": 35778, "reused_tokens": 0, "fresh_tokens": 35778, "prompt_tok_s": 242.3, "generated_tokens": 512, "decode_tok_s": 19.0, "drafts_accepted": "190/322", "cold": true},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.1, "drafts_accepted": "190/322", "cold": false},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.1, "drafts_accepted": "190/322", "cold": false}
+      ],
+      "storia_short": [
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.0, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 21.2, "cold": false},
+        {"prompt_tokens": 690, "reused_tokens": 672, "generated_tokens": 494, "decode_tok_s": 20.9, "cold": false}
+      ]
+    },
+    "chunk_4096": {
+      "bigctx_35778": [
+        {"prompt_tokens": 35778, "reused_tokens": 0, "fresh_tokens": 35778, "prompt_tok_s": 250.9, "generated_tokens": 512, "decode_tok_s": 19.0, "drafts_accepted": "190/322", "cold": true},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.1, "drafts_accepted": "190/322", "cold": false},
+        {"prompt_tokens": 35778, "reused_tokens": 35773, "fresh_tokens": 5, "generated_tokens": 512, "decode_tok_s": 21.2, "drafts_accepted": "190/322", "cold": false}
+      ]
+    }
+  },
+  "summary": "All configurations land in the same band: decode ~21 tok/s at 35778 tokens and ~21 tok/s at ~1k, cold prompt ~245-276 tok/s. The spread between configurations equals the run-to-run spread within one configuration, so ROUTE_TAIL_SKIP (0/7/10), --kv k8v4 and prompt chunk (2048/4096) are neutral here. Reason: the arena holds 12943 of 24576 ranked experts resident (28.43 GB), so there are no expert misses for ROUTE_TAIL_SKIP to skip, and cold prompt is bound by streaming experts from the SSD, not by chunk size."
+}

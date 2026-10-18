@@ -1,0 +1,28 @@
+Strata 0.1.45-metal start-up block (base config: spec 2 + MTP + chunk 2048 + reserve 1728,
+KV default, ROUTE_TAIL_SKIP default 7). Paths replaced with placeholders. Measured on
+Apple M1 Max 64 GB, 2026-10-18.
+
+[strata] 2026-10-18 17:30:12 engine started: <repo>/build-metal/strata --serve \
+  --pack <data>/packs/iq3_s --native <data>/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00001-of-00002.gguf \
+  --ple-gguf <data>/models/IQ3_S/Qwen3.8-Flash-Next-GSQ-RCO-IQ3_S-00002-of-00002.gguf \
+  --expert-profile <repo>/data/expert-profile.bin --expert-cache auto --prefill auto --spec 2 \
+  --suffix-draft 0 --max-context 262144 --mmap-experts --mtp <data>/mtp/rt --vram-reserve-mib 1728 --vision
+strata generate: expert cache auto: 47.23 GiB free, 1728 MiB reserved (+1 MiB for the draft head) -> 18366 slots
+strata metal: HC read in Q8_0 (STRATA_HC_Q8=0: BF16): 290 matrices, 680 MB, made in 411 ms
+strata metal stream: 789 dense tensors read into memory (3.23 GB, 2.1 s; 290 left out)
+strata metal: decode window on Apple M1 Max: <data>/models/IQ3_S/...gguf streamed from the SSD (experts) (54.8 GB), 262272 cells, PLE on, ready in 3265 ms
+strata metal: MTP draft layer from <data>/mtp/mtp-q2_0.gguf (0.89 GB, 9 norms folded), draft head over 40525 tokens
+strata serve: STRATA_ROUTE_TAIL_SKIP=7 is ON (default): a missed expert that every token of a verify window routes at rank 7 or lower is skipped (+10..20% decode on 12-16 GB cards that miss experts); STRATA_ROUTE_TAIL_SKIP=0 turns it off
+strata serve: 4549 MiB of VRAM free with everything loaded
+strata metal stream: 45.77 GB of the host code's device weight copies given back (unused by the Metal window)
+strata metal stream: 9.27 GB allocated before the arena (the process holds 12.30 GB, 18.38 GB resident); RAM 68.7 GB (46.8 GB available, 10.3 GB kept for macOS), GPU working set 62.3 GB
+strata metal stream: planned resident footprint 41.2 GB = arena 28.4 + 12.3 held before it + 0.5 reserved for the n-gram table; cap 41.2 GB = the lesser of the GPU working set 62.3 GB and the RAM 68.7 GB less 27.5 GB left to macOS and its file cache
+strata metal stream: expert arena 28.43 GB, 12943 slots in 3 size classes, 12943 experts read from the profile's top (24576 ranked) in 7.8 s (3.38 GB/s); 6 I/O threads, read-ahead top 6; 4 buffers
+strata metal stream: 28.4 GB of the arena wired (mlock) in 7024 ms; macOS cannot compress it while the engine idles (STRATA_METAL_WIRE_ARENA=0 turns it off)
+strata metal stream: 3.02 GB of the arena (1547 slots) hold a prompt's buffers while it runs
+strata metal: prompts on the matrix units in chunks of 2048 (experts v2, QSA v1, matmul2d layout other; 3.02 GB of buffers, in the expert arena while a prompt runs)
+strata metal stream: resident footprint after the fill: the process holds 40.7 GB (42.8 GB resident), planned 41.2 GB, cap 41.2 GB
+strata serve: WARNING: only 0 MiB of VRAM free at the start of this request (below 512 MiB): when the card is this full the driver can page GPU memory to system RAM, decode falls to a few tok/s and a window may never finish (#2065). Add --vram-reserve-mib 2240 to the config's args, or lower --max-context / --batch
+
+Note: the "0 MiB VRAM free" warning reappeared at large context (100k+ tokens) with
+--vram-reserve-mib 1728; it was not chased in this report (flagged for follow-up).
